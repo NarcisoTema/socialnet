@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Adicione os estilos conforme necessário */
+
+        nav {
+            background-color: #333;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            background-color: #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        nav ul li {
+            margin-right: 15px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        header {
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        section {
+            margin-bottom: 20px;
+        }
+
+        textarea, input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #ff69b4;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #ff4070;
+        }
+
+        #post-list {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .post {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        #friends-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #friends-list li {
+            margin-bottom: 5px;
+        }
+
+        #content-section {
+            margin-top: 20px;
+        }
+    </style>
+    <title>SocialNet</title>
+</head>
+<body>
+    <header>
+        <h1>SocialNet</h1>
+    </header>
+
+    <div class="container">
+        <section id="login-section">
+            <h2>Login</h2>
+            <label for="username">Nome de Usuário:</label>
+            <input type="text" id="username" placeholder="Digite seu nome de usuário">
+            <label for="password">Senha:</label>
+            <input type="password" id="password" placeholder="Digite sua senha">
+            <button onclick="login()">Entrar</button>
+        </section>
+
+        <section id="signup-section">
+            <h2>Criar Conta</h2>
+            <label for="new-username">Nome de Usuário:</label>
+            <input type="text" id="new-username" placeholder="Escolha um nome de usuário">
+            <label for="new-password">Senha:</label>
+            <input type="password" id="new-password" placeholder="Escolha uma senha">
+            <button onclick="signUp()">Criar Conta</button>
+        </section>
+
+        <section id="user-interface" style="display: none;">
+            <h2 id="welcome-message">Bem-vindo, <span id="current-user"></span>!</h2>
+
+            <nav id="nav-menu" style="display: none;">
+                <ul>
+                    <li><a href="#" onclick="showContent('home')">Página Inicial</a></li>
+                    <li><a href="#" onclick="showContent('videos')">Vídeos</a></li>
+                    <li><a href="#" onclick="showContent('marketplace')">Marketplace</a></li>
+                    <li><a href="#" onclick="showContent('friends')">Amigos</a></li>
+                    <li><a href="#" onclick="showContent('friend-requests')">Pedidos de Amizade</a></li>
+                    <li><a href="#" onclick="showContent('messages')">Mensagens</a></li>
+                    <li><a href="#" onclick="logout()">Sair</a></li>
+                </ul>
+            </nav>
+
+            <section id="content-section">
+                <!-- Conteúdo dinâmico será carregado aqui -->
+            </section>
+
+            <section id="post-section" style="display: none;">
+                <h2>Novo Post</h2>
+                <textarea id="post-text" placeholder="Digite seu post aqui..."></textarea>
+                <button onclick="addPost()">Postar</button>
+                <div id="post-list"></div>
+            </section>
+
+            <section id="friends-section" style="display: none;">
+                <h2>Amigos</h2>
+                <ul id="friends-list"></ul>
+            </section>
+        </section>
+    </div>
+
+    <script>
+        var users = JSON.parse(localStorage.getItem('users')) || [];
+        var posts = JSON.parse(localStorage.getItem('posts')) || [];
+        var currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+        function saveDataToLocalStorage() {
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('posts', JSON.stringify(posts));
+        }
+
+        window.onload = function () {
+            if (currentUser) {
+                document.getElementById("current-user").textContent = currentUser.username;
+                document.getElementById("welcome-message").style.display = "block";
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("signup-section").style.display = "none";
+                document.getElementById("user-interface").style.display = "block";
+                document.getElementById("nav-menu").style.display = "block";
+                startAutoUpdate();
+                showContent('home');
+            }
+        };
+
+        function login() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            var user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                currentUser = user;
+                saveDataToLocalStorage();
+                document.getElementById("current-user").textContent = currentUser.username;
+                document.getElementById("welcome-message").style.display = "block";
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("signup-section").style.display = "none";
+                document.getElementById("user-interface").style.display = "block";
+                document.getElementById("nav-menu").style.display = "block";
+                startAutoUpdate();
+                showContent('home');
+            } else {
+                alert("Nome de usuário ou senha inválido");
+            }
+        }
+
+        function signUp() {
+            var newUsername = document.getElementById("new-username").value;
+            var newPassword = document.getElementById("new-password").value;
+
+            if (newUsername.trim() === "" || newPassword.trim() === "") {
+                alert("Por favor, insira um nome de usuário e senha válidos");
+                return;
+            }
+
+            if (users.some(u => u.username === newUsername)) {
+                alert("Nome de usuário já existe. Por favor, escolha outro.");
+                return;
+            }
+
+            users.push({
+                username: newUsername,
+                password: newPassword,
+                friends: []
+            });
+
+            currentUser = {
+                username: newUsername,
+                password: newPassword,
+                friends: []
+            };
+
+            saveDataToLocalStorage();
+
+            alert("Conta criada com sucesso!");
+        }
+
+        function startAutoUpdate() {
+            setInterval(updateContent, 5000);
+            updateContent();
+        }
+
+        function updateContent() {
+            var activeMenu = document.querySelector("nav a.active");
+            if (activeMenu) {
+                var functionName = activeMenu.getAttribute("onclick").replace("show", "update");
+                window[functionName]();
+            }
+        }
+
+        function showContent(page) {
+            var contentSection = document.getElementById("content-section");
+            switch (page) {
+                case 'home':
+                    contentSection.innerHTML = "<h3>Página Inicial</h3><p>Conteúdo da Página Inicial atualizado automaticamente.</p>";
+                    document.getElementById("post-section").style.display = "block";
+                    showPosts();
+                    break;
+                case 'videos':
+                    contentSection.innerHTML = "<h3>Vídeos</h3><p>Conteúdo de Vídeos.</p>";
+                    document.getElementById("post-section").style.display = "none";
+                    break;
+                case 'marketplace':
+                    contentSection.innerHTML = "<h3>Marketplace</h3><p>Conteúdo do Marketplace.</p>";
+                    document.getElementById("post-section").style.display = "none";
+                    break;
+                case 'friends':
+                    showFriends();
+                    break;
+                case 'friend-requests':
+                    contentSection.innerHTML = "<h3>Pedidos de Amizade</h3><p>Conteúdo de Pedidos de Amizade.</p>";
+                    document.getElementById("post-section").style.display = "none";
+                    break;
+                case 'messages':
+                    contentSection.innerHTML = "<h3>Mensagens</h3><p>Conteúdo de Mensagens.</p>";
+                    document.getElementById("post-section").style.display = "none";
+                    break;
+                default:
+                    contentSection.innerHTML = "<p>Página não encontrada.</p>";
+            }
+            hideWelcomeMessage();
+        }
+
+        function hideWelcomeMessage() {
+            document.getElementById("welcome-message").style.display = "none";
+        }
+
+        function logout() {
+            document.getElementById("login-section").style.display = "block";
+            document.getElementById("signup-section").style.display = "block";
+            document.getElementById("user-interface").style.display = "none";
+            document.getElementById("content-section").style.display = "none";
+            document.getElementById("nav-menu").style.display = "none";
+            currentUser = null;
+            saveDataToLocalStorage();
+        }
+
+        function addPost() {
+            var postText = document.getElementById("post-text").value;
+
+            if (postText.trim() !== "") {
+                var newPost = {
+                    text: postText,
+                    likes: 0,
+                    author: currentUser.username
+                };
+                posts.push(newPost);
+                saveDataToLocalStorage();
+                showPosts();
+                document.getElementById("post-text").value = "";
+            }
+        }
+
+        function showPosts() {
+            var postList = document.getElementById("post-list");
+            postList.innerHTML = "";
+
+            posts.forEach(function (post) {
+                var postDiv = document.createElement("div");
+                postDiv.classList.add("post");
+
+                var postContent = document.createElement("p");
+                postContent.textContent = post.text;
+
+                var authorInfo = document.createElement("span");
+                authorInfo.textContent = "Autor: " + post.author;
+
+                var likeButton = document.createElement("button");
+                likeButton.textContent = "Curtir";
+                likeButton.onclick = function() {
+                    likePost(post);
+                };
+
+                postDiv.appendChild(postContent);
+                postDiv.appendChild(authorInfo);
+                postDiv.appendChild(likeButton);
+                postList.appendChild(postDiv);
+            });
+        }
+
+        function likePost(post) {
+            post.likes++;
+            alert("Post curtido! Total de curtidas: " + post.likes);
+            saveDataToLocalStorage();
+            showPosts();
+        }
+
+        function showFriends() {
+            var friendsList = document.getElementById("friends-list");
+            friendsList.innerHTML = "";
+
+            currentUser.friends.forEach(function (friend) {
+                var friendItem = document.createElement("li");
+                friendItem.textContent = friend;
+                friendsList.appendChild(friendItem);
+            });
+        }
+        
+    </script>
+</body>
+</html>
