@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator Bot com Iframe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Aviator Bot com Iframe</h1>
+    <p>O site do Aviator está carregado abaixo. Devido a restrições de segurança, não é possível acessar dados diretamente do iframe.</p>
+    
+    <!-- Iframe que carrega o site da ElephantBet -->
+    <iframe src="https://www.elephantbet.co.ao/aviator/" id="aviatorIframe"></iframe>
+    
+    <p id="notification"></p>
+</div>
+
+<script>
+    // Tentativa de acessar conteúdo do iframe - isso não funcionará devido à política de mesma origem
+    const iframe = document.getElementById('aviatorIframe');
+
+    iframe.onload = function() {
+        try {
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            const multiplierElement = iframeDocument.querySelector('.multiplier-value'); // Supondo o seletor
+            if (multiplierElement) {
+                const multiplier = multiplierElement.innerText;
+                console.log(`Multiplicador Atual: ${multiplier}`);
+                document.getElementById('notification').innerText = `Multiplicador Atual Coletado: ${multiplier}`;
+            } else {
+                console.log("Elemento do multiplicador não encontrado.");
+                document.getElementById('notification').innerText = "Elemento do multiplicador não encontrado.";
+            }
+        } catch (error) {
+            console.log("Erro ao tentar acessar o conteúdo do iframe: ", error);
+            document.getElementById('notification').innerText = "Não foi possível acessar o conteúdo do iframe devido à política de mesma origem.";
+        }
+    };
+</script>
+
+</body>
+</html>
